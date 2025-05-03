@@ -20,12 +20,8 @@ export const getMyProfile = async (req, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const user = req.user;
-    const { username, bio, skills } = req.body;
-    if (!bio || !skills) {
-      return res.status(400).json({ message: "Bio and skills are required" });
-    }
-    let avatarUrl = user.avatar;
-
+    const { username, email, bio, skills } = req.body;
+    let avatarUrl = user.avatar; // default to current avatar
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
         resource_type: "image",
@@ -38,6 +34,7 @@ export const updateProfile = async (req, res) => {
     user.username = username || user.username;
     user.bio = bio || user.bio;
     user.skills = skills ? skills.split(",") : user.skills;
+    user.email = email || user.email;
     user.avatar = avatarUrl;
 
     await user.save();
@@ -50,6 +47,29 @@ export const updateProfile = async (req, res) => {
     res.status(500).json({ message: "Update failed", error: err.message });
   }
 };
+
+export const updateCoverImage = async (req, res) => {
+  try {
+    const user = req.user;
+    let coverImgUrl = user.coverImg; // default to current cover image
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        resource_type: "image",
+        folder: "devlink/cover",
+      });
+      coverImgUrl = result.secure_url;
+      fs.unlinkSync(req.file.path); // delete local file
+    }
+    user.coverImg = coverImgUrl;
+    await user.save();
+    res.status(200).json({
+      message: "Cover image updated",
+      coverImgUrl,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Update failed", error: err.message });
+  }
+};  
 
 export const toggleFollow = async (req, res) => {
   try {
