@@ -25,11 +25,13 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { clearUser } from "@/store/features/authSlice";
 
 const Navbar = () => {
   const [showSearchBar, setShowSearchBar] = useState(false);
   const navigate = useNavigate();
-  const user = dummyUser;
+  const { userInfo } = useSelector((state) => state.user);
   const navLinks = [
     {
       to: "/",
@@ -54,7 +56,7 @@ const Navbar = () => {
   ];
 
   const [width, setWidth] = useState(window.innerWidth);
-
+  const dispatch = useDispatch();
   useEffect(() => {
     const handleResize = () => {
       setWidth(window.innerWidth);
@@ -65,6 +67,12 @@ const Navbar = () => {
     // Cleanup function to remove the listener on unmount
     return () => window.removeEventListener("resize", handleResize);
   }, [width]);
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    dispatch(clearUser())
+    navigate("/login");
+  };
   return (
     <nav className="fixed top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className=" flex justify-between items-center px-4 mt-2 h-16">
@@ -145,7 +153,7 @@ const Navbar = () => {
             <div className="flex items-center">
               <img
                 loading="lazy"
-                src={dummyUser.avatar}
+                src={userInfo.avatar}
                 alt="Profile"
                 className="size-10 rounded-full ring-2 ring-primary/10 md:size-10"
               />
@@ -155,7 +163,9 @@ const Navbar = () => {
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => navigate(`/user/${user._id}`)}>
+              <DropdownMenuItem
+                onClick={() => navigate(`/user/${userInfo._id}`)}
+              >
                 <User />
                 <span>Profile</span>
                 <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
@@ -168,7 +178,7 @@ const Navbar = () => {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={logout}>
               <LogOut />
               <span>Log out</span>
               <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>

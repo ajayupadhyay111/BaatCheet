@@ -1,21 +1,62 @@
-import { lazy, Suspense } from "react";
-import { Route, Routes } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
+import { lazy, Suspense, useEffect } from "react";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 import ProtectRoute from "./components/protectRoutes/ProtectPrivateRoutes";
 import ProtectAuthRoutes from "./components/protectRoutes/ProtectAuthRoutes";
-import Navbar from "./components/Navbar";
-import Feed from "./pages/Feed";
-import Chat from "./pages/Chat";
-import Notifications from "./pages/Notifications";
 import LoadingPage from "./pages/LoadingPage";
-import ProfileDetails from "./pages/ProfileDetails";
+import { getUser } from "./requestAPI/api/userAPI";
+import { useQuery } from "@tanstack/react-query";
+import { useDispatch } from "react-redux";
+import { clearUser, setUser } from "./store/features/authSlice";
 const Home = lazy(() => import("@/pages/Home"));
 const Login = lazy(() => import("@/pages/auth/Login"));
 const SignUp = lazy(() => import("@/pages/auth/SignUp"));
+const Feed = lazy(() => import("@/pages/Feed"));
+const Chat = lazy(() => import("@/pages/Chat"));
+const Notifications = lazy(() => import("@/pages/Notifications"));
+const ProfileDetails = lazy(() => import("@/pages/ProfileDetails"));
 const App = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["users"],
+    queryFn: getUser,
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
+  useEffect(() => {
+    if (data) {
+      dispatch(setUser(data.user));
+    } else if (isError) {
+      localStorage.removeItem("token");
+      dispatch(clearUser());
+      navigate("/login");
+      if (error?.response?.status === 401) {
+        toast.error("Session expired, please login again", {
+          position: "bottom-right",
+          duration: 3000,
+        });
+      } else if (error?.response?.status === 403) {
+        toast.error("You are not authorized to access this resource", {
+          position: "bottom-right",
+          duration: 3000,
+        });
+      } else {
+        toast.error("Something went wrong, please try again", {
+          position: "bottom-right",
+          duration: 3000,
+        });
+      }
+    }
+  }, [data, isError, dispatch]);
+
+  if (isLoading) {
+    return <LoadingPage />;
+  }
   return (
     <>
-      <Suspense fallback={<LoadingPage/>}>
+      <Suspense fallback={<LoadingPage />}>
         <Routes>
           {/* auth routes */}
           <Route element={<ProtectAuthRoutes />}>
@@ -30,8 +71,7 @@ const App = () => {
             <Route path="/feed" element={<Feed />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/notifications" element={<Notifications />} />
-            <Route path="/user/:id" element={<ProfileDetails />} />
-            <Route path="/profile" element={<ProfileDetails />} />
+            <Route path="/user/:id" element={<ProfileDetails />} /> 
           </Route>
         </Routes>
       </Suspense>

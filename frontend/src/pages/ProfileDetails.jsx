@@ -1,42 +1,127 @@
 import { Button } from "@/components/ui/button";
-import { dummyUser } from "@/constant/dummy";
-import { Facebook, Instagram, Linkedin, Twitch } from "lucide-react";
-import { useState } from "react";
+import { Facebook, Instagram, Linkedin, Pencil, Twitch } from "lucide-react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import ProfileCarousel from "@/components/ProfileCarousel";
+import { useParams } from "react-router-dom";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { getPublicProfile, updateCoverImage } from "@/requestAPI/api/userAPI";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "@/store/features/authSlice";
+import LoadingPage from "./LoadingPage";
+import toast from "react-hot-toast";
+import EditProfileDialog from "@/components/EditProfileDialog";
 const ProfileDetails = () => {
-  let user = dummyUser;
+  const [previewCoverImg, setPreviewCoverImg] = useState(null);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const { userInfo } = useSelector((state) => state.user);
+
   const [selectedNavigationTab, setSelectedNavigationTab] = useState("Posts");
 
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["user", id],
+    queryFn: () => getPublicProfile(id),
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
+
+  useEffect(() => {
+    if (data) {
+      dispatch(setUser(data.user));
+    }
+    if (isError) {
+      console.log(error);
+      toast.error(error?.response?.data?.message || "Something went wrong", {
+        position: "bottom-right",
+        duration: 3000,
+      });
+    }
+  }, [isError, error, data, dispatch]);
+
+
+  // cover image 👇👇
+  const { mutate, isPending } = useMutation({
+    mutationFn: updateCoverImage,
+  });
+
+  const handleCoverImageChange = (e) => {
+    const file = e.target.files[0];
+    const formData = new FormData();
+    if (file) {
+      setPreviewCoverImg(URL.createObjectURL(file));
+      formData.append("coverImg", file);
+    }
+    mutate(formData, {
+      onSuccess: (data) => {
+        toast.success(data.message, {
+          position: "bottom-right",
+          duration: 3000,
+        });
+        dispatch(setUser(data.user));
+      },
+      onError: (error) => {
+        toast.error(error?.response?.data?.message || "Something went wrong", {
+          position: "bottom-right",
+          duration: 3000,
+        });
+      },
+    });
+  };
+
+  if (isPending || isLoading) {
+    return <LoadingPage />;
+  }
+  console.log(userInfo)
   return (
-    <div className="container mx-auto max-w-6xl mt-22">
+    <div className="container mx-auto max-w-3xl mt-22">
       {/* Cover and Profile Section */}
       <div className="rounded-xl border bg-background shadow-sm">
         <div className="relative">
           {/* Cover Image */}
-          <img
-            loading="lazy"
-            src="https://marketplace.canva.com/EAECJXaRRew/3/0/1600w/canva-do-what-is-right-starry-sky-facebook-cover-4SpKW5MtQl4.jpg"
-            alt="Cover"
-            className="h-48 w-full object-cover object-top rounded-t-xl"
+          <input
+            type="file"
+            id="coverImg"
+            accept="image/*"
+            onChange={handleCoverImageChange}
+            className="hidden"
           />
+          {userInfo.coverImg ? (
+            <img
+              loading="lazy"
+              src={previewCoverImg || userInfo.coverImg}
+              alt="Cover"
+              onClick={() => document.getElementById("coverImg").click()}
+              onChange={handleCoverImageChange}
+              className="h-48 w-full object-cover object-top rounded-t-xl"
+            />
+          ) : (
+            <div
+              onClick={() => document.getElementById("coverImg").click()}
+              onChange={handleCoverImageChange}
+              className="w-full h-48 border flex justify-center items-center text-gray-400 select-none"
+            >
+              Select your Cover Image
+            </div>
+          )}
 
           {/* Profile Image */}
           <div className="absolute -bottom-16 left-6">
             <img
               loading="lazy"
-              src={user.avatar}
-              alt={user.username}
+              src={userInfo.avatar}
+              alt={userInfo.username}
               className="size-32 rounded-full border-4 border-background object-cover ring-2 ring-primary/10"
             />
           </div>
         </div>
 
         {/* User Info */}
-        <div className="pt-20 px-6 pb-6 space-y-4">
+        <div className="relative pt-20 px-6 pb-6 space-y-4">
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold">{user.username}</h1>
-            <p className="text-muted-foreground">{user.bio}</p>
+            <h1 className="text-2xl font-bold">{userInfo.username}</h1>
+            <p className="text-muted-foreground">{userInfo.bio}</p>
           </div>
 
           {/* Social Links */}
@@ -56,23 +141,37 @@ const ProfileDetails = () => {
               </a>
             ))}
           </div>
+
+          {/* edit profile handling */}
+          <button
+            onClick={() => setOpenEditDialog((prev) => !prev)}
+            className="absolute top-4 right-4 group inline-flex items-center gap-2 p-3 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold shadow-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-400 z-10"
+          >
+            <Pencil className="w-4 h-4 transition-transform group-hover:rotate-12" />
+          </button>
+          {/* edit profile component */}
+          <EditProfileDialog
+            isOpen={openEditDialog}
+            setIsOpen={setOpenEditDialog}
+            userDetails={userInfo}
+          />
         </div>
       </div>
 
       {/* Activity Section */}
-      <div className="mt-4 pt-2 space-y-6 px-3 border rounded-xl bg-background">
+      <div className="mt-4 pt-2 space-y-6 px-3 border rounded-xl bg-b ackground">
         <div className="flex items-start gap-2 flex-col justify-between">
           <h2 className="text-xl font-semibold">Activity</h2>
           <div className="flex gap-6">
             <span className="text-sm text-muted-foreground">
               <strong className="text-foreground">
-                {user.followers.length}
+                {userInfo.followers.length}
               </strong>{" "}
               followers
             </span>
             <span className="text-sm text-muted-foreground">
               <strong className="text-foreground">
-                {user.following.length}
+                {userInfo.following.length}
               </strong>{" "}
               following
             </span>

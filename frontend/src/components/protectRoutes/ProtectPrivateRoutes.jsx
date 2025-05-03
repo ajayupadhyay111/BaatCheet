@@ -1,10 +1,12 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import Navbar from "../Navbar";
+import { useSelector } from "react-redux";
 
 const ProtectRoute = () => {
-  let user = true;
-  return user ? (
+  const {isUser} =useSelector((state) => state.user);
+
+  return isUser ? (
     <>
     <div className="">
     <Navbar />
