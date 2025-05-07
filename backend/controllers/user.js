@@ -44,6 +44,7 @@ export const updateProfile = async (req, res) => {
       user,
     });
   } catch (err) {
+    console.log(err)
     res.status(500).json({ message: "Update failed", error: err.message });
   }
 };
@@ -69,7 +70,7 @@ export const updateCoverImage = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: "Update failed", error: err.message });
   }
-};  
+};
 
 export const toggleFollow = async (req, res) => {
   try {

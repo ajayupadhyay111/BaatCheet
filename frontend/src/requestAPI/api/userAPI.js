@@ -1,8 +1,9 @@
 import apiInstance from "@/utils/axios";
 
-let token = localStorage.getItem("token");
 
+let token = localStorage.getItem("token");
 export const getUser = async () => {
+  console.log("token ",token)
   const response = await apiInstance.get("/user/me", {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -21,6 +22,7 @@ export const getPublicProfile = async (userId) => {
 };
 
 export const updateProfile = async (formData) => {
+  console.log(token)
   const response = await apiInstance.put("/user/update", formData, {
     headers: {
       Authorization: `Bearer ${token}`,
