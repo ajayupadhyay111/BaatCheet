@@ -17,8 +17,11 @@ const userSlice = createSlice({
       state.userInfo = null;
       state.isUser = false;
     },
+    setCoverImg(state, action) {
+      state.userInfo.coverImg = action.payload;
+    },
   },
 });
 
-export const { setUser, clearUser } = userSlice.actions;
+export const { setUser, clearUser,setCoverImg } = userSlice.actions;
 export default userSlice.reducer;

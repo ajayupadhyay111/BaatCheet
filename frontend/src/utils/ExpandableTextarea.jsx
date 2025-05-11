@@ -14,7 +14,7 @@ export function ExpandableTextarea({ placeholder, text, setText }) {
     <Textarea
       ref={textareaRef}
       placeholder={placeholder}
-      className="resize-none overflow-hidden w-[370px] break-words"
+      className="resize-none overflow-hidden md:w-[370px] break-words"
       onInput={handleInput}
       value={text}
       onChange={(e) => setText(e.target.value)}

@@ -1,9 +1,8 @@
 import apiInstance from "@/utils/axios";
 
-
 let token = localStorage.getItem("token");
+
 export const getUser = async () => {
-  console.log("token ",token)
   const response = await apiInstance.get("/user/me", {
     headers: {
       Authorization: `Bearer ${token}`,

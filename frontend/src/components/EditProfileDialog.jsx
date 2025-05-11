@@ -14,10 +14,12 @@ import { Camera, Link2, X } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { updateProfile } from "@/requestAPI/api/userAPI";
 import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/store/features/authSlice";
+import { queryClient } from "@/main";
 
 export default function EditProfileDialog({ isOpen, setIsOpen, userDetails }) {
+  const { userInfo } = useSelector((state) => state.user);
   const [imgPreview, setImgPreview] = useState(null);
   const [image, setImage] = useState(null);
   const [form, setForm] = useState({
@@ -62,6 +64,7 @@ export default function EditProfileDialog({ isOpen, setIsOpen, userDetails }) {
     });
     mutate(formData, {
       onSuccess: (data) => {
+        queryClient.invalidateQueries(["user", userInfo._id]);
         dispatch(setUser(data.user));
         toast.success("Profile updated successfully", {
           position: "bottom-right",
@@ -81,7 +84,7 @@ export default function EditProfileDialog({ isOpen, setIsOpen, userDetails }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className=" p-6 h-[90vh]">
+      <DialogContent className="p-6 h-[90vh]">
         <DialogHeader>
           <div className="flex items-center justify-between w-full mb-6">
             <DialogTitle className="text-2xl font-bold">
@@ -223,7 +226,11 @@ export default function EditProfileDialog({ isOpen, setIsOpen, userDetails }) {
 
           {/* Submit Button */}
           <div className="flex justify-end gap-3 pt-6 border-t">
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsOpen(false)}
+            >
               Cancel
             </Button>
             <Button type="submit">

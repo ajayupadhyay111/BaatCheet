@@ -34,7 +34,7 @@ export const createPost = async (req, res) => {
 export const getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate("createdBy", "username avatar")
+      .populate("createdBy", "username bio avatar")
       .populate({
         path: "comments",
         select: "text createdAt user", // include comment fields
@@ -80,13 +80,14 @@ export const toggleLike = async (req, res) => {
     const liked = post.likes.includes(req.user._id);
 
     if (liked) {
-      post.likes.pull(req.user._id);
+      post.likes.pull(req.user._id);  
       await Notification.deleteOne({
         recipient: post.createdBy,
         sender: req.user._id,
         post: postId,
         type: "like",
       });
+      await post.save();
       return res.status(200).json({ message: "Post unliked" });
     }
 
@@ -144,7 +145,12 @@ export const deletePost = async (req, res) => {
       return res.status(403).json({ message: "You can't delete this post" });
     }
 
-    await post.remove();
+    if (post.image)
+      await cloudinary.uploader.destroy(
+        post.image.split("/").splice(7).join("/").split(".")[0]
+      );
+
+    await post.deleteOne();
 
     res.status(200).json({ message: "Post deleted" });
   } catch (err) {

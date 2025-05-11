@@ -196,7 +196,7 @@ export const dummyPosts = [
     image:
       "https://i.pinimg.com/736x/c5/99/a5/c599a55ef1a6a4c4e45bf78aeb60226d.jpg",
     createdBy: {
-      _id: "68115f5c297a81146c757eea",
+      _id: "681ba2941fb5fcd88eb49447",
       username: "ajay",
       bio: "Software Engineer",
       avatar: "https://avatar.iran.liara.run/username?username=ajay",

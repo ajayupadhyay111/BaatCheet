@@ -82,7 +82,7 @@ const Navbar = () => {
             loading="lazy"
             src="/logo.png"
             alt="logo"
-            className="h-8 w-28 hidden sm:block"
+            className="h-8 w-28  hidden sm:block"
           />
           <img
             loading="lazy"
@@ -153,9 +153,9 @@ const Navbar = () => {
             <div className="flex items-center">
               <img
                 loading="lazy"
-                src={userInfo.avatar}
+                src={userInfo.avatar||"https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_640.png"}
                 alt="Profile"
-                className="size-10 rounded-full ring-2 ring-primary/10 md:size-10"
+                className="size-10 object-cover object-top rounded-full ring-2 ring-primary/10 md:size-10"
               />
             </div>
           </DropdownMenuTrigger>

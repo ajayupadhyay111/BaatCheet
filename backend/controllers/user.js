@@ -22,7 +22,13 @@ export const updateProfile = async (req, res) => {
     const user = req.user;
     const { username, email, bio, skills } = req.body;
     let avatarUrl = user.avatar; // default to current avatar
+    console.log(avatarUrl)
     if (req.file) {
+      if (avatarUrl)
+        await cloudinary.uploader.destroy(
+          user.avatar.split("/").splice(7).join("/").split(".")[0]
+        );
+
       const result = await cloudinary.uploader.upload(req.file.path, {
         resource_type: "image",
         folder: "devlink/avatars",
@@ -44,7 +50,7 @@ export const updateProfile = async (req, res) => {
       user,
     });
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(500).json({ message: "Update failed", error: err.message });
   }
 };
@@ -54,6 +60,10 @@ export const updateCoverImage = async (req, res) => {
     const user = req.user;
     let coverImgUrl = user.coverImg; // default to current cover image
     if (req.file) {
+      if (user.coverImg)
+        await cloudinary.uploader.destroy(
+          user.coverImg.split("/").splice(7).join("/").split(".")[0]
+        );
       const result = await cloudinary.uploader.upload(req.file.path, {
         resource_type: "image",
         folder: "devlink/cover",

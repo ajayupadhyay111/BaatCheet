@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect } from "react";
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import { Route, Routes, useNavigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import ProtectRoute from "./components/protectRoutes/ProtectPrivateRoutes";
 import ProtectAuthRoutes from "./components/protectRoutes/ProtectAuthRoutes";
 import LoadingPage from "./pages/LoadingPage";
@@ -32,22 +32,6 @@ const App = () => {
       localStorage.removeItem("token");
       dispatch(clearUser());
       navigate("/login");
-      if (error?.response?.status === 401) {
-        toast.error("Session expired, please login again", {
-          position: "bottom-right",
-          duration: 3000,
-        });
-      } else if (error?.response?.status === 403) {
-        toast.error("You are not authorized to access this resource", {
-          position: "bottom-right",
-          duration: 3000,
-        });
-      } else {
-        toast.error("Something went wrong, please try again", {
-          position: "bottom-right",
-          duration: 3000,
-        });
-      }
     }
   }, [data, isError, dispatch]);
 

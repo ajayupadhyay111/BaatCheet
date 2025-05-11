@@ -14,7 +14,7 @@ const router = express.Router();
 
 router.get("/me", protect, getMyProfile);
 router.put("/update", protect, upload.single("avatar"),multerErrorHandler, updateProfile);
-router.put("/update/coverImg", protect, upload.single("coverImg"), updateCoverImage);
+router.put("/update/coverImg", protect, upload.single("coverImg"), multerErrorHandler,updateCoverImage);
 router.put("/follow/:userId", protect, toggleFollow);
 router.get("/profile/:userId", getPublicProfile);
 

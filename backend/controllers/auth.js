@@ -23,7 +23,6 @@ export const signup = async (req, res) => {
       password: hashedPassword,
     });
 
-    user.avatar = `https://avatar.iran.liara.run/username?username=${username}`;
     await user.save();
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
@@ -37,7 +36,6 @@ export const signup = async (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
-        avatar: user.avatar,
         coverImg: user.coverImg,
       },
     });

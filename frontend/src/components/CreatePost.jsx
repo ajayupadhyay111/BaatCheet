@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ImageIcon, SmileIcon, VideoIcon } from "lucide-react";
+import { ImageIcon, Loader2, SmileIcon, VideoIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Dialog,
@@ -11,15 +11,47 @@ import {
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import { ExpandableTextarea } from "@/utils/ExpandableTextarea";
+import { useMutation } from "@tanstack/react-query";
+import { createPost } from "@/requestAPI/api/postAPI";
+import toast from "react-hot-toast";
+import { queryClient } from "@/main";
 
 const CreatePost = ({ user }) => {
   const [text, setText] = useState(null);
   const [video, setVideo] = useState(null);
   const [image, setImage] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false)
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: createPost,
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(text, video, image);
+    const formData = new FormData();
+    formData.append("caption", text);
+    if (image) {
+      formData.append("post", image);
+    } else if (video) {
+      formData.append("post", video);
+    }
+
+    mutate(formData, {
+      onSuccess: (data) => {
+        toast.success(data.message, {
+          position: "bottom-right",
+          duration: 3000,
+        });
+        setOpenDialog(false)
+        queryClient.invalidateQueries(["posts"])
+      },
+      onError: (error) => {
+        toast.error(error.response.data.message, {
+          position: "bottom-right",
+          duration: 3000,
+        });
+      },
+    });
   };
 
   const handleVideo = async () => {
@@ -55,10 +87,12 @@ const CreatePost = ({ user }) => {
 
         // Append to the container
         container.appendChild(video);
+        setImage(null); // clear image if any video is selected
       }
     };
     input.click();
   };
+
   const handleImage = () => {
     let input = document.createElement("input");
 
@@ -84,19 +118,20 @@ const CreatePost = ({ user }) => {
 
         // Append to the container
         container.appendChild(image);
+        setVideo(null); // clear video if any image is selected
       }
     };
     input.click();
   };
   return (
     <div className="bg-background border rounded-xl p-4 mb-4">
-      <Dialog className="">
+      <Dialog className="" open={openDialog} onOpenChange={setOpenDialog}>
         <DialogTrigger asChild>
-          <div className="flex gap-3">
+          <div className="flex gap-3" onClick={()=>setOpenDialog(true)}>
             <img
               loading="lazy"
-              src={user.avatar}
-              className="size-12 rounded-full ring-2 ring-primary/10"
+              src={user.avatar||"https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_640.png"}
+              className="size-12 rounded-full ring-2 object-cover object-top ring-primary/10"
               alt="user avatar"
             />
             <div className="flex-1">
@@ -133,7 +168,9 @@ const CreatePost = ({ user }) => {
                 <ImageIcon className="h-5 w-5 mr-2" />
                 Image
               </Button>
-              <Button
+
+              {/* Hiding video upload functionality */}
+              {/* <Button
                 onClick={handleVideo}
                 type="button"
                 variant="ghost"
@@ -142,8 +179,9 @@ const CreatePost = ({ user }) => {
               >
                 <VideoIcon className="h-5 w-5 mr-2" />
                 Video
-              </Button>
-              <Button
+              </Button> */}
+              
+              {/* <Button
                 type="button"
                 variant="ghost"
                 size="sm"
@@ -151,10 +189,18 @@ const CreatePost = ({ user }) => {
               >
                 <SmileIcon className="h-5 w-5 mr-2" />
                 Feeling
-              </Button>
+              </Button> */}
             </div>
             <div className="flex justify-end">
-              <Button type="submit">Post</Button>
+              <Button type="submit" className="w-20">
+                {isPending ? (
+                  <div className="w-full animate-spin h-full flex items-center justify-center">
+                    <Loader2 />
+                  </div>
+                ) : (
+                  "Post"
+                )}
+              </Button>
             </div>
           </form>
         </DialogContent>

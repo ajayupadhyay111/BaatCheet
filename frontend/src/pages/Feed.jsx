@@ -15,7 +15,7 @@ const Feed = () => {
               loading="lazy"
               src={user.avatar}
               alt={user.username}
-              className="size-24 rounded-full ring-4 ring-primary/10 object-cover"
+              className="size-24 rounded-full object-top ring-4 ring-primary/10 object-cover"
             />
             <div className="absolute bottom-0 right-0 size-6 rounded-full bg-green-500 border-4 border-background"></div>
           </div>
