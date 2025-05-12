@@ -12,12 +12,18 @@ import { cn } from "@/lib/utils";
 import ProfileCarousel from "@/components/ProfileCarousel";
 import { useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { getPublicProfile, updateCoverImage } from "@/requestAPI/api/userAPI";
+import {
+  followUser,
+  getPublicProfile,
+  updateCoverImage,
+} from "@/requestAPI/api/userAPI";
 import { useDispatch, useSelector } from "react-redux";
 import { setCoverImg } from "@/store/features/authSlice";
 import LoadingPage from "./LoadingPage";
 import toast from "react-hot-toast";
+import { RiUserFollowLine } from "react-icons/ri";
 import EditProfileDialog from "@/components/EditProfileDialog";
+import { queryClient } from "@/main";
 const ProfileDetails = () => {
   const [previewCoverImg, setPreviewCoverImg] = useState(null);
   const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -36,7 +42,6 @@ const ProfileDetails = () => {
   });
   useEffect(() => {
     if (data) {
-      console.log(data);
       setProfile(data.user);
     }
     if (isError) {
@@ -77,10 +82,25 @@ const ProfileDetails = () => {
     });
   };
 
+  const { mutate: handleFollow } = useMutation({
+    mutationFn: followUser,
+  });
+  const handleFollowUser = (id) => {
+    handleFollow(id, {
+      onSuccess: (data) => {
+        toast.success(data.message);
+        queryClient.invalidateQueries(["user", userInfo._id]);
+      },
+      onError: (err) => {
+        console.log(err);
+        toast.error(err.response.data.message || "Something went wrong");
+      },
+    });
+  };
+
   if (isLoading) {
     return <LoadingPage />;
   }
-  console.log(profile);
   return (
     <>
       {profile && (
@@ -177,7 +197,19 @@ const ProfileDetails = () => {
                     </a>
                   ))}
                 </div>
-                <Button>Follow</Button>
+                {userInfo._id === id ? (
+                  ""
+                ) : (
+                  <Button onClick={() => handleFollowUser(id)}>
+                    {userInfo.following.includes(id) ? (
+                      <span className="flex items-center gap-1">
+                        <RiUserFollowLine /> following
+                      </span>
+                    ) : (
+                      "follow"
+                    )}
+                  </Button>
+                )}
               </div>
 
               {/* edit profile handling */}

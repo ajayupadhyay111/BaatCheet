@@ -38,3 +38,12 @@ export const updateCoverImage = async (formData) => {
   });
   return response.data;
 };
+
+export const followUser = async(id)=>{
+   const response = await apiInstance.put(`/user/follow/${id}`,{}, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}

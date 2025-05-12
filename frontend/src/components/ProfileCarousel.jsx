@@ -1,6 +1,5 @@
 import { dummyPosts } from "@/constant/dummy";
 import React from "react";
-import { useParams } from "react-router-dom";
 import PostCard from "./PostCard";
 import {
   Carousel,
@@ -11,7 +10,7 @@ import {
 } from "@/components/ui/carousel";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 const ProfileCarousel = ({ selectedNavigationTab }) => {
-  const { id } = useParams();
+  
   const posts = dummyPosts;
   switch (selectedNavigationTab) {
     case "Videos":
