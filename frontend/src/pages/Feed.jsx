@@ -2,9 +2,18 @@ import React from "react";
 import { dummyPosts, dummyUser } from "@/constant/dummy";
 import CreatePost from "@/components/CreatePost";
 import PostCart from "@/components/PostCard";
+import { useSelector } from "react-redux";
+import { useQuery } from "@tanstack/react-query";
+import { feedPosts } from "@/requestAPI/api/postAPI";
 const Feed = () => {
-  let user = dummyUser;
-  let posts = dummyPosts;
+  const {userInfo:user} = useSelector(state=>state.user)
+  const {data:posts} = useQuery({
+    queryFn:feedPosts,
+    queryKey:['feeds'],
+    refetchOnWindowFocus:false,
+    retry:false
+  })
+
   return (
     <div className="flex gap-4 md:flex-row flex-col">
       <div className="bg-background border rounded-xl p-6 w-full h-fit md:w-[30%] top-20">

@@ -43,3 +43,12 @@ export const likePost = async (id) => {
   });
   return response.data;
 };
+
+export const feedPosts = async ()=>{
+  const response = await apiInstance.get("/post/feed", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data.posts
+}

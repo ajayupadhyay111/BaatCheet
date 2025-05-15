@@ -13,7 +13,7 @@ const Login = lazy(() => import("@/pages/auth/Login"));
 const SignUp = lazy(() => import("@/pages/auth/SignUp"));
 const Feed = lazy(() => import("@/pages/Feed"));
 const Chat = lazy(() => import("@/pages/Chat"));
-const Notifications = lazy(() => import("@/pages/Notifications"));
+import Notifications from "@/pages/Notifications";
 const ProfileDetails = lazy(() => import("@/pages/ProfileDetails"));
 const App = () => {
   const navigate = useNavigate();

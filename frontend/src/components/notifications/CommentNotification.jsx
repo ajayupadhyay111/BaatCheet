@@ -2,6 +2,7 @@ import { formatPostTime } from "@/utils/FormatPostTime";
 import { cn } from "@/lib/utils";
 
 const CommentNotification = ({ notification }) => {
+  console.log(notification);
   return (
     <div
       className={cn(
@@ -15,7 +16,7 @@ const CommentNotification = ({ notification }) => {
       {/* User Avatar */}
       <img
         loading="lazy"
-        src={notification.sender.avatar}
+        src={notification.sender.avatar || "https://aul.edu.ng/static/images/user.jpg"}
         className={cn(
           "size-12 rounded-full object-cover",
           !notification.isRead
@@ -36,8 +37,12 @@ const CommentNotification = ({ notification }) => {
             <span className="ml-2 inline-flex h-2 w-2 rounded-full bg-primary"></span>
           )}
         </span>
+        {notification.comment && (
+          <span class="inline-block bg-gray-800 text-white text-sm px-4 py-2 rounded-lg shadow-md max-w-xs break-words">
+           {notification.comment}
+          </span>
+        )}
 
-        {/* Post Preview */}
         <div
           className={cn(
             "flex items-start gap-3 rounded-lg border p-3",

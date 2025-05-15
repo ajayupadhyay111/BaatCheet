@@ -33,7 +33,7 @@ export const signup = async (req, res) => {
       message: "Signup successful",
       token,
       user: {
-        id: user._id,
+        _id: user._id,
         username: user.username,
         email: user.email,
         coverImg: user.coverImg,

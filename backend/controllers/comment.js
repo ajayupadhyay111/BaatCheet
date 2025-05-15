@@ -28,6 +28,7 @@ export const addComment = async (req, res) => {
       sender: userId, // Commenter
       type: "comment",
       post: postId,
+      comment:text,
     });
     await notification.save();
 

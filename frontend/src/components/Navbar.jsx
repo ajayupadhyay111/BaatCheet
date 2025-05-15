@@ -1,4 +1,4 @@
-import { dummyUser } from "@/constant/dummy";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +32,7 @@ const Navbar = () => {
   const [showSearchBar, setShowSearchBar] = useState(false);
   const navigate = useNavigate();
   const { userInfo } = useSelector((state) => state.user);
+  const { unReadNotfication } = useSelector((state) => state.notification);
   const navLinks = [
     {
       to: "/",
@@ -70,7 +71,7 @@ const Navbar = () => {
 
   const logout = () => {
     localStorage.removeItem("token");
-    dispatch(clearUser())
+    dispatch(clearUser());
     navigate("/login");
   };
   return (
@@ -137,7 +138,14 @@ const Navbar = () => {
                   )
                 }
               >
-                <link.icon className="h-5 w-5" />
+                <span className="relative">
+                  <link.icon className="h-5 w-5" />
+                  {link.to === "/notifications" && unReadNotfication > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                      {unReadNotfication > 9 ? "9+" : unReadNotfication}
+                    </span>
+                  )}
+                </span>
                 <span className="text-xs md:text-sm hidden md:block">
                   {link.label}
                 </span>
@@ -153,7 +161,8 @@ const Navbar = () => {
             <div className="flex items-center">
               <img
                 loading="lazy"
-                src={userInfo.avatar||"https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_640.png"}
+                src={
+                  userInfo.avatar || "https://aul.edu.ng/static/images/user.jpg"                }
                 alt="Profile"
                 className="size-10 object-cover object-top rounded-full ring-2 ring-primary/10 md:size-10"
               />

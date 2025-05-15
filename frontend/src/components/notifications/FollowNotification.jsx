@@ -17,7 +17,7 @@ const FollowNotification = ({ notification }) => {
       {/* User Avatar */}
       <img
         loading="lazy"
-        src={notification.sender.avatar}
+        src={notification.sender.avatar || "https://aul.edu.ng/static/images/user.jpg"}
         className={cn(
           "size-12 rounded-full object-cover",
           !notification.isRead

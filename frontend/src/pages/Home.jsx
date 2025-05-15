@@ -1,18 +1,45 @@
-import React, { lazy } from "react";
+import React, { lazy, useEffect } from "react";
 import CreatePost from "@/components/CreatePost";
 const PostCard = lazy(() => import("@/components/PostCard"));
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getAllPosts } from "@/requestAPI/api/postAPI";
 import { Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { getAllNotifications } from "@/requestAPI/api/notificationAPI";
+import { setNotificationCount, setNotifications } from "@/store/features/notificationSlice";
 const Home = () => {
   let { userInfo } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const { data: posts, isLoading } = useQuery({
     queryKey: ["posts"],
     queryFn: getAllPosts,
     refetchOnWindowFocus: false,
     retry: false,
   });
+
+  // fetching notifications
+  const {
+    data: notificationsData,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["notifications"],
+    queryFn: getAllNotifications,
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
+  useEffect(() => {
+    if (isError) {
+      console.log(error);
+    }
+    if (notificationsData) {
+      const unReadNotifications = notificationsData.filter(
+        (notification) => notification.isRead === false
+      );
+      dispatch(setNotificationCount(unReadNotifications.length));
+      dispatch(setNotifications(notificationsData));
+    }
+  }, [notificationsData]);
   return (
     <div className="flex gap-4 md:flex-row flex-col">
       <div className="bg-background border rounded-xl p-6 w-full h-fit md:w-[30%] top-20">
@@ -21,7 +48,10 @@ const Home = () => {
           <div className="relative">
             <img
               loading="lazy"
-              src={userInfo.avatar||"https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_640.png"}
+              src={
+                userInfo.avatar ||
+                "https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_640.png"
+              }
               alt={userInfo.username}
               className="size-24 rounded-full object-top ring-4 ring-primary/10 object-cover"
             />
